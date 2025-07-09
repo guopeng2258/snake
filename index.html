@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇游戏 - JavaScript</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>🐍 贪吃蛇游戏</h1>
+        
+        <!-- 用户名输入区域 -->
+        <div id="nameInput" class="name-input-section">
+            <div class="input-group">
+                <label for="playerName">输入您的用户名：</label>
+                <input type="text" id="playerName" placeholder="请输入用户名" maxlength="15">
+                <button id="startButton">开始游戏</button>
+            </div>
+        </div>
+        
+        <!-- 游戏信息面板 -->
+        <div id="gameInfo" class="game-info" style="display: none;">
+            <div class="player-info">
+                <span>玩家：<span id="currentPlayer">-</span></span>
+            </div>
+            <div class="info-panel">
+                <div class="score">得分: <span id="score">0</span></div>
+                <div class="high-score">最高分: <span id="high-score">0</span></div>
+            </div>
+        </div>
+        
+        <!-- 游戏画布 -->
+        <div id="gameArea" style="display: none;">
+            <canvas id="gameCanvas" width="600" height="400"></canvas>
+        </div>
+        
+        <!-- 控制说明 -->
+        <div id="controls" class="controls" style="display: none;">
+            <p>使用方向键或WASD控制蛇的移动</p>
+            <p>按空格键重新开始游戏</p>
+        </div>
+        
+        <!-- 移动端控制按钮 -->
+        <div id="mobileControls" class="mobile-controls" style="display: none;">
+            <div class="control-row">
+                <button id="up">↑</button>
+            </div>
+            <div class="control-row">
+                <button id="left">←</button>
+                <button id="down">↓</button>
+                <button id="right">→</button>
+            </div>
+        </div>
+        
+        <!-- 排行榜 -->
+        <div class="leaderboard">
+            <h3>🏆 排行榜</h3>
+            <div class="leaderboard-toggle">
+                <button id="toggleLeaderboard">显示/隐藏排行榜</button>
+            </div>
+            <div id="leaderboardList" class="leaderboard-list">
+                <div class="leaderboard-item header">
+                    <span class="rank">排名</span>
+                    <span class="name">用户名</span>
+                    <span class="score">得分</span>
+                    <span class="date">日期</span>
+                </div>
+                <div id="leaderboardContent">
+                    <!-- 排行榜内容将通过JavaScript生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html> 
