@@ -74,7 +74,7 @@ snake/
    在浏览器中访问：`http://localhost:8000`
 
 ### 在线演示
-🎮 **立即体验**：[在线游戏地址](https://your-site-name.netlify.app)
+🎮 **立即体验**：[在线游戏地址](https://cursor-snake.netlify.app)
 
 ## 🌐 部署到Netlify
 
