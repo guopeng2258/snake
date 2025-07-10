@@ -1,5 +1,169 @@
 // 贪吃蛇游戏 - 带用户名和排行榜功能
 class SnakeGame {
+    loadAppleImage() {
+        this.appleImage = new Image();
+        this.appleImage.onload = () => {
+            this.appleImageLoaded = true;
+            console.log('苹果SVG图片加载成功');
+        };
+        this.appleImage.onerror = () => {
+            console.log('苹果图片加载失败，使用Canvas绘制');
+            this.appleImageLoaded = false;
+        };
+        // 使用本地SVG文件
+        this.appleImage.src = 'apple.svg';
+    }
+    
+    loadSnakeHeadImage() {
+        this.snakeHeadImage = new Image();
+        this.snakeHeadImage.onload = () => {
+            this.snakeHeadImageLoaded = true;
+            console.log('蛇头图片加载成功');
+        };
+        this.snakeHeadImage.onerror = () => {
+            console.log('蛇头图片加载失败，使用Canvas绘制');
+            this.snakeHeadImageLoaded = false;
+        };
+        
+        // 首先检查是否有保存的自定义图片
+        const savedImage = localStorage.getItem('customSnakeHead');
+        if (savedImage) {
+            this.snakeHeadImage.src = savedImage;
+            console.log('加载自定义蛇头图片');
+        } else {
+            // 尝试加载像素图片，如果不存在则回退到SVG
+            this.snakeHeadImage.src = 'snake-head.png';
+            
+            // 如果PNG加载失败，尝试SVG
+            this.snakeHeadImage.onerror = () => {
+                console.log('PNG图片不存在，尝试加载SVG');
+                this.snakeHeadImage.onerror = () => {
+                    console.log('所有图片加载失败，使用Canvas绘制');
+                    this.snakeHeadImageLoaded = false;
+                };
+                this.snakeHeadImage.src = 'snake-head-game.svg';
+            };
+        }
+    }
+    
+    // 添加文件上传功能
+    setupImageUpload() {
+        // 创建隐藏的文件输入元素
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        fileInput.id = 'snakeHeadUpload';
+        document.body.appendChild(fileInput);
+        
+        // 创建上传按钮
+        const uploadBtn = document.createElement('button');
+        uploadBtn.textContent = '🐍 上传蛇头图片';
+        uploadBtn.className = 'upload-btn';
+        uploadBtn.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        `;
+        
+        uploadBtn.onmouseover = () => {
+            uploadBtn.style.transform = 'translateY(-2px)';
+            uploadBtn.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+        };
+        
+        uploadBtn.onmouseout = () => {
+            uploadBtn.style.transform = 'translateY(0)';
+            uploadBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+        };
+        
+        uploadBtn.onclick = () => fileInput.click();
+        
+        // 将按钮添加到游戏容器
+        const gameContainer = document.querySelector('.game-container');
+        if (gameContainer) {
+            gameContainer.style.position = 'relative';
+            gameContainer.appendChild(uploadBtn);
+        }
+        
+        // 处理文件选择
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // 更新蛇头图片
+                    this.snakeHeadImage.src = event.target.result;
+                    this.snakeHeadImageLoaded = true;
+                    
+                    // 保存到本地存储
+                    localStorage.setItem('customSnakeHead', event.target.result);
+                    console.log('蛇头图片已更新');
+                    
+                    // 显示成功提示
+                    uploadBtn.textContent = '✅ 图片已更新';
+                    setTimeout(() => {
+                        uploadBtn.textContent = '🐍 上传蛇头图片';
+                    }, 2000);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('请选择有效的图片文件！');
+            }
+        };
+        
+        // 添加重置按钮
+        const resetBtn = document.createElement('button');
+        resetBtn.textContent = '🔄 重置蛇头';
+        resetBtn.className = 'reset-btn';
+        resetBtn.style.cssText = `
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            padding: 6px 10px;
+            background: linear-gradient(45deg, #ff5722, #ff7043);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        `;
+        
+        resetBtn.onmouseover = () => {
+            resetBtn.style.transform = 'translateY(-1px)';
+        };
+        
+        resetBtn.onmouseout = () => {
+            resetBtn.style.transform = 'translateY(0)';
+        };
+        
+        resetBtn.onclick = () => {
+            localStorage.removeItem('customSnakeHead');
+            this.snakeHeadImageLoaded = false;
+            this.snakeHeadImage.src = 'snake-head-game.svg';
+            console.log('已重置为默认蛇头');
+            
+            resetBtn.textContent = '✅ 已重置';
+            setTimeout(() => {
+                resetBtn.textContent = '🔄 重置蛇头';
+            }, 1500);
+        };
+        
+        if (gameContainer) {
+            gameContainer.appendChild(resetBtn);
+        }
+    }
+
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
@@ -22,10 +186,25 @@ class SnakeGame {
         this.gameOver = false;
         this.playerName = '';
         
+        // 苹果图片相关
+        this.appleImage = null;
+        this.appleImageLoaded = false;
+        
+        // 蛇头图片相关
+        this.snakeHeadImage = null;
+        this.snakeHeadImageLoaded = false;
+        
+        // 蛇动画相关
+        this.animationFrame = 0;
+        this.lastBlinkTime = 0;
+        
         // 初始化
+        this.loadAppleImage(); // 加载苹果图片
+        this.loadSnakeHeadImage(); // 加载蛇头图片
         this.generateFood(); // 确保食物生成
         this.setupControls();
         this.setupUI();
+        this.setupImageUpload(); // 设置图片上传功能
         this.loadLeaderboard();
         this.updateScore();
         
@@ -225,6 +404,9 @@ class SnakeGame {
         this.gameLoopTimeout = setTimeout(() => {
             if (this.gameOver) return;
             
+            // 更新动画帧
+            this.animationFrame++;
+            
             this.clearCanvas();
             this.moveSnake();
             
@@ -310,27 +492,252 @@ class SnakeGame {
     }
     
     drawSnake() {
-        this.snake.forEach((segment, index) => {
-            if (index === 0) {
-                this.ctx.fillStyle = '#27ae60';
-                this.ctx.fillRect(segment.x * this.gridSize + 1, segment.y * this.gridSize + 1, 
-                                this.gridSize - 2, this.gridSize - 2);
-                
-                this.ctx.fillStyle = '#ffffff';
-                const eyeSize = 3;
-                this.ctx.beginPath();
-                this.ctx.arc(segment.x * this.gridSize + 6, segment.y * this.gridSize + 6, eyeSize, 0, 2 * Math.PI);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(segment.x * this.gridSize + 14, segment.y * this.gridSize + 6, eyeSize, 0, 2 * Math.PI);
-                this.ctx.fill();
-            } else {
-                this.ctx.fillStyle = '#2ecc71';
-                this.ctx.fillRect(segment.x * this.gridSize + 2, segment.y * this.gridSize + 2, 
-                                this.gridSize - 4, this.gridSize - 4);
-            }
-        });
+        // 先绘制蛇身（除了头部）
+        for (let i = 1; i < this.snake.length; i++) {
+            const segment = this.snake[i];
+            this.drawSnakeBody(segment.x * this.gridSize, segment.y * this.gridSize, this.gridSize, i);
+        }
+        
+        // 最后绘制蛇头（确保在最上层，且比身体大）
+        if (this.snake.length > 0) {
+            const head = this.snake[0];
+            const headSize = this.gridSize * 1.3; // 蛇头比身体大30%
+            const offset = (headSize - this.gridSize) / 2; // 居中偏移
+            this.drawSnakeHead(
+                head.x * this.gridSize - offset, 
+                head.y * this.gridSize - offset, 
+                headSize
+            );
+        }
     }
+    
+    drawSnakeHead(x, y, size) {
+        const centerX = x + size / 2;
+        const centerY = y + size / 2;
+        
+        // 优先使用图片，失败则使用Canvas绘制
+        if (this.snakeHeadImageLoaded && this.snakeHeadImage) {
+            this.ctx.save();
+            
+            // 根据移动方向旋转蛇头图片
+            this.ctx.translate(centerX, centerY);
+            if (this.dx === 1) this.ctx.rotate(0); // 右
+            else if (this.dx === -1) this.ctx.rotate(Math.PI); // 左
+            else if (this.dy === 1) this.ctx.rotate(Math.PI / 2); // 下
+            else if (this.dy === -1) this.ctx.rotate(-Math.PI / 2); // 上
+            
+            // 绘制蛇头图片
+            this.ctx.drawImage(
+                this.snakeHeadImage,
+                -size / 2, -size / 2,
+                size, size
+            );
+            
+            this.ctx.restore();
+            return;
+        }
+        
+        // 图片加载失败时使用Canvas绘制
+        this.ctx.save();
+        
+        // 根据移动方向旋转蛇头
+        this.ctx.translate(centerX, centerY);
+        if (this.dx === 1) this.ctx.rotate(0); // 右
+        else if (this.dx === -1) this.ctx.rotate(Math.PI); // 左
+        else if (this.dy === 1) this.ctx.rotate(Math.PI / 2); // 下
+        else if (this.dy === -1) this.ctx.rotate(-Math.PI / 2); // 上
+        
+        // 绘制蛇头主体（更具体的形状）
+        const headWidth = size * 0.85;
+        const headHeight = size * 0.7;
+        
+        // 蛇头渐变
+        const headGradient = this.ctx.createRadialGradient(-headWidth * 0.2, -headHeight * 0.2, 0, 0, 0, headWidth * 0.6);
+        headGradient.addColorStop(0, '#66bb6a'); // 高光
+        headGradient.addColorStop(0.4, '#4caf50'); // 主色
+        headGradient.addColorStop(0.8, '#388e3c'); // 过渡
+        headGradient.addColorStop(1, '#2e7d32'); // 阴影
+        
+        this.ctx.fillStyle = headGradient;
+        this.ctx.beginPath();
+        
+        // 绘制更真实的蛇头形状（尖锐的前端，圆润的后端）
+        this.ctx.moveTo(headWidth * 0.4, 0); // 头部尖端
+        this.ctx.quadraticCurveTo(headWidth * 0.3, -headHeight * 0.25, 0, -headHeight * 0.3); // 右上侧
+        this.ctx.quadraticCurveTo(-headWidth * 0.35, -headHeight * 0.35, -headWidth * 0.4, -headHeight * 0.1); // 后脑勺右侧
+        this.ctx.quadraticCurveTo(-headWidth * 0.45, 0, -headWidth * 0.4, headHeight * 0.1); // 左侧
+        this.ctx.quadraticCurveTo(-headWidth * 0.35, headHeight * 0.35, 0, headHeight * 0.3); // 左下侧
+        this.ctx.quadraticCurveTo(headWidth * 0.3, headHeight * 0.25, headWidth * 0.4, 0); // 回到起点
+        
+        this.ctx.fill();
+        
+        // 绘制蛇头纹理（菱形斑纹）
+        this.ctx.fillStyle = 'rgba(46, 125, 50, 0.6)';
+        this.drawDiamondPattern(-headWidth * 0.15, -headHeight * 0.15, headWidth * 0.12);
+        this.drawDiamondPattern(-headWidth * 0.15, headHeight * 0.05, headWidth * 0.1);
+        this.drawDiamondPattern(-headWidth * 0.25, 0, headWidth * 0.08);
+        
+        // 绘制眼睛（带眨眼动画）
+        const currentTime = Date.now();
+        const shouldBlink = (currentTime - this.lastBlinkTime) % 3000 < 200;
+        
+        const eyeSize = headWidth * 0.12;
+        const eyeY = -headHeight * 0.08;
+        
+        if (shouldBlink) {
+            // 眨眼状态
+            this.ctx.fillStyle = '#2e7d32';
+            this.ctx.beginPath();
+            this.ctx.ellipse(-headWidth * 0.15, eyeY, eyeSize, eyeSize * 0.3, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.beginPath();
+            this.ctx.ellipse(headWidth * 0.15, eyeY, eyeSize, eyeSize * 0.3, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+        } else {
+            // 绘制立体眼睛
+            this.drawEye(-headWidth * 0.15, eyeY, eyeSize);
+            this.drawEye(headWidth * 0.15, eyeY, eyeSize);
+        }
+        
+        // 绘制鼻孔
+        this.ctx.fillStyle = '#1b5e20';
+        this.ctx.beginPath();
+        this.ctx.ellipse(-headWidth * 0.05, headHeight * 0.15, headWidth * 0.02, headWidth * 0.01, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.beginPath();
+        this.ctx.ellipse(headWidth * 0.05, headHeight * 0.15, headWidth * 0.02, headWidth * 0.01, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 绘制嘴巴线条
+        this.ctx.strokeStyle = '#2e7d32';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.beginPath();
+        this.ctx.moveTo(-headWidth * 0.08, headHeight * 0.22);
+        this.ctx.quadraticCurveTo(0, headHeight * 0.28, headWidth * 0.08, headHeight * 0.22);
+        this.ctx.stroke();
+        
+        // 偶尔绘制舌头
+        if (this.animationFrame % 100 < 5) { // 更稳定的舌头显示
+            this.ctx.fillStyle = '#f44336';
+            this.ctx.beginPath();
+            this.ctx.ellipse(0, headHeight * 0.35, headWidth * 0.04, headHeight * 0.15, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // 舌头分叉
+            this.ctx.beginPath();
+            this.ctx.ellipse(-headWidth * 0.02, headHeight * 0.42, headWidth * 0.015, headHeight * 0.08, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.beginPath();
+            this.ctx.ellipse(headWidth * 0.02, headHeight * 0.42, headWidth * 0.015, headHeight * 0.08, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        
+        this.ctx.restore();
+    }
+    
+    drawEye(x, y, size) {
+        // 眼眶阴影
+        this.ctx.fillStyle = 'rgba(46, 125, 50, 0.3)';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y + size * 0.1, size * 1.1, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 眼球
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, size, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 虹膜
+        this.ctx.fillStyle = '#2e7d32';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, size * 0.7, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 瞳孔
+        this.ctx.fillStyle = '#000000';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, size * 0.4, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 高光
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.beginPath();
+        this.ctx.arc(x - size * 0.2, y - size * 0.2, size * 0.15, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 小高光
+        this.ctx.beginPath();
+        this.ctx.arc(x + size * 0.3, y - size * 0.1, size * 0.08, 0, Math.PI * 2);
+        this.ctx.fill();
+    }
+    
+    drawDiamondPattern(x, y, size) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y - size);
+        this.ctx.lineTo(x + size, y);
+        this.ctx.lineTo(x, y + size);
+        this.ctx.lineTo(x - size, y);
+        this.ctx.closePath();
+        this.ctx.fill();
+    }
+    
+    drawSnakeBody(x, y, size, segmentIndex) {
+        const centerX = x + size / 2;
+        const centerY = y + size / 2;
+        const bodyRadius = size * 0.4; // 身体半径
+        
+        this.ctx.save();
+        
+        // 蛇身渐变色（从头到尾颜色逐渐变深）
+        const intensity = Math.max(0.7, 1 - (segmentIndex - 1) * 0.03);
+        
+        // 绘制蛇身主体（简洁的圆形）
+        const bodyGradient = this.ctx.createRadialGradient(
+            centerX - bodyRadius * 0.3, centerY - bodyRadius * 0.3, 0,
+            centerX, centerY, bodyRadius
+        );
+        
+        bodyGradient.addColorStop(0, `rgba(102, 187, 106, ${intensity})`); // 高光
+        bodyGradient.addColorStop(0.5, `rgba(76, 175, 80, ${intensity})`); // 主色
+        bodyGradient.addColorStop(1, `rgba(56, 142, 60, ${intensity})`); // 边缘
+        
+        this.ctx.fillStyle = bodyGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, bodyRadius, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 绘制简单的身体纹理（环形条纹）
+        this.ctx.strokeStyle = `rgba(46, 125, 50, ${intensity * 0.6})`;
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, bodyRadius * 0.7, 0, Math.PI * 2);
+        this.ctx.stroke();
+        
+        // 绘制外边框
+        this.ctx.strokeStyle = `rgba(46, 125, 50, ${intensity * 0.8})`;
+        this.ctx.lineWidth = 0.5;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, bodyRadius, 0, Math.PI * 2);
+        this.ctx.stroke();
+        
+        // 添加简单的鳞片效果
+        this.ctx.fillStyle = `rgba(129, 199, 132, ${intensity * 0.4})`;
+        const dotCount = 4;
+        for (let i = 0; i < dotCount; i++) {
+            const angle = (i * Math.PI * 2) / dotCount + segmentIndex * 0.3;
+            const dotX = centerX + Math.cos(angle) * bodyRadius * 0.5;
+            const dotY = centerY + Math.sin(angle) * bodyRadius * 0.5;
+            
+            this.ctx.beginPath();
+            this.ctx.arc(dotX, dotY, bodyRadius * 0.08, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        
+        this.ctx.restore();
+    }
+    
+
     
     drawFood() {
         if (!this.food || this.food.x === undefined || this.food.y === undefined) {
@@ -348,19 +755,71 @@ class SnakeGame {
         
         console.log(`绘制食物在位置: (${this.food.x}, ${this.food.y})`);
         
-        // 绘制更明显的红色苹果
-        this.ctx.fillStyle = '#e74c3c'; // 深红色底色
-        this.ctx.fillRect(this.food.x * this.gridSize + 1, this.food.y * this.gridSize + 1, 
-                         this.gridSize - 2, this.gridSize - 2);
+        const x = this.food.x * this.gridSize;
+        const y = this.food.y * this.gridSize;
         
-        this.ctx.fillStyle = '#ff6b6b'; // 浅红色高光
-        this.ctx.fillRect(this.food.x * this.gridSize + 3, this.food.y * this.gridSize + 3, 
-                         this.gridSize - 6, this.gridSize - 6);
+        // 优先使用图片，失败则使用Canvas绘制
+        if (this.appleImageLoaded && this.appleImage) {
+            // 使用图片绘制苹果
+            this.ctx.drawImage(
+                this.appleImage, 
+                x + 2, y + 2, 
+                this.gridSize - 4, this.gridSize - 4
+            );
+        } else {
+            // 使用Canvas绘制逼真的苹果
+            this.drawApple(x, y, this.gridSize);
+        }
+    }
+    
+    drawApple(x, y, size) {
+        const centerX = x + size / 2;
+        const centerY = y + size / 2;
+        const radius = size * 0.35;
         
-        // 绿色茎
+        // 保存画布状态
+        this.ctx.save();
+        
+        // 绘制苹果主体（渐变红色）
+        const gradient = this.ctx.createRadialGradient(
+            centerX - radius * 0.3, centerY - radius * 0.3, 0,
+            centerX, centerY, radius
+        );
+        gradient.addColorStop(0, '#ff6b6b'); // 高光部分
+        gradient.addColorStop(0.7, '#e74c3c'); // 主体颜色
+        gradient.addColorStop(1, '#c0392b'); // 阴影部分
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.beginPath();
+        
+        // 绘制苹果形状（心形+圆形组合）
+        this.ctx.arc(centerX, centerY + radius * 0.1, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 绘制苹果顶部凹陷
+        this.ctx.fillStyle = '#c0392b';
+        this.ctx.beginPath();
+        this.ctx.ellipse(centerX, y + size * 0.25, radius * 0.3, radius * 0.15, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 绘制苹果茎（棕色）
+        this.ctx.fillStyle = '#8b4513';
+        this.ctx.fillRect(centerX - 1, y + size * 0.1, 2, size * 0.2);
+        
+        // 绘制叶子（绿色）
         this.ctx.fillStyle = '#27ae60';
-        this.ctx.fillRect(this.food.x * this.gridSize + this.gridSize/2 - 1, this.food.y * this.gridSize + 1, 
-                         2, 4);
+        this.ctx.beginPath();
+        this.ctx.ellipse(centerX + 3, y + size * 0.15, 4, 2, Math.PI * 0.3, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 绘制高光
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        this.ctx.beginPath();
+        this.ctx.ellipse(centerX - radius * 0.3, centerY - radius * 0.2, radius * 0.25, radius * 0.15, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // 恢复画布状态
+        this.ctx.restore();
     }
     
     showStartScreen() {

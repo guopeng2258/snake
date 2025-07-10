@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 定义渐变 -->
+  <defs>
+    <!-- 蛇头主体渐变 -->
+    <radialGradient id="snakeHeadGradient" cx="0.3" cy="0.3">
+      <stop offset="0%" stop-color="#81c784"/>
+      <stop offset="40%" stop-color="#4caf50"/>
+      <stop offset="100%" stop-color="#388e3c"/>
+    </radialGradient>
+    
+    <!-- 眼睛高光渐变 -->
+    <radialGradient id="eyeGradient" cx="0.3" cy="0.3">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#f5f5f5"/>
+      <stop offset="100%" stop-color="#e0e0e0"/>
+    </radialGradient>
+    
+    <!-- 花纹渐变 -->
+    <linearGradient id="patternGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2e7d32"/>
+      <stop offset="100%" stop-color="#1b5e20"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- 蛇头主体（椭圆形） -->
+  <ellipse cx="50" cy="50" rx="35" ry="30" fill="url(#snakeHeadGradient)" stroke="none"/>
+  
+  <!-- 蛇头花纹 -->
+  <ellipse cx="40" cy="35" rx="6" ry="4" fill="url(#patternGradient)"/>
+  <ellipse cx="60" cy="35" rx="6" ry="4" fill="url(#patternGradient)"/>
+  <ellipse cx="50" cy="25" rx="8" ry="3" fill="url(#patternGradient)"/>
+  
+  <!-- 左眼 -->
+  <circle cx="40" cy="45" r="8" fill="url(#eyeGradient)"/>
+  <circle cx="40" cy="45" r="5" fill="#000000"/>
+  <circle cx="42" cy="43" r="2" fill="#ffffff"/>
+  
+  <!-- 右眼 -->
+  <circle cx="60" cy="45" r="8" fill="url(#eyeGradient)"/>
+  <circle cx="60" cy="45" r="5" fill="#000000"/>
+  <circle cx="62" cy="43" r="2" fill="#ffffff"/>
+  
+  <!-- 鼻孔 -->
+  <ellipse cx="47" cy="60" rx="2" ry="1" fill="#2e7d32"/>
+  <ellipse cx="53" cy="60" rx="2" ry="1" fill="#2e7d32"/>
+  
+  <!-- 嘴巴 -->
+  <path d="M45 65 Q50 68 55 65" stroke="#2e7d32" stroke-width="2" fill="none"/>
+  
+  <!-- 舌头（可选） -->
+  <ellipse cx="50" cy="70" rx="3" ry="8" fill="#f44336" opacity="0.8"/>
+  
+  <!-- 额外的鳞片纹理 -->
+  <circle cx="30" cy="40" r="2" fill="#66bb6a" opacity="0.6"/>
+  <circle cx="70" cy="40" r="2" fill="#66bb6a" opacity="0.6"/>
+  <circle cx="35" cy="55" r="1.5" fill="#66bb6a" opacity="0.6"/>
+  <circle cx="65" cy="55" r="1.5" fill="#66bb6a" opacity="0.6"/>
+</svg> 
